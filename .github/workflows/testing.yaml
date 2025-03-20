@@ -18,7 +18,7 @@ permissions: {}
 jobs:
   ### Test the GitHub Action in this Repository ###
   tests:
-    name: "Test local GitHub Action"
+    name: "Action Testing"
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -27,19 +27,65 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       # Perform setup prior to running test(s)
-      - name: "Testing setup step"
-        shell: bash
-        run: |
-          # Testing setup step
-          echo "Testing setup step"
-          echo "Testing setup step/summary output" >> "$GITHUB_STEP_SUMMARY"
+      - name: "Checkout sample project repository"
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: "lfreleng-actions/test-python-project"
+          path: "test-python-project"
 
-      - name: "Running local action: ${{ github.repository }}"
+      - name: "Check for test-python-project directory"
+        id: test-python-project
         uses: ./
+        with:
+          path: "test-python-project"
 
-      - name: "Validating local action: ${{ github.repository }}"
+      - name: "Check for pyproject.toml file"
+        id: pyproject-toml
+        uses: ./
+        with:
+          path: "test-python-project/pyproject.toml"
+
+      - name: "Check for LICENSE symlink"
+        id: license-symlink
+        uses: ./
+        with:
+          path: "test-python-project/LICENSE"
+
+      - name: "Validate Action Output: ${{ github.repository }}"
         shell: bash
         run: |
-          # Local action validation
-          echo "Validating local action: ${{ github.repository }}"
-          echo "Validation step summary output" >> "$GITHUB_STEP_SUMMARY"
+          # Validate Action Output
+          if [ "${{ steps.test-python-project.outputs.type }}" \
+            != "directory" ]; then
+            echo "Unexpected return value for: test-python-project ❌"
+            echo "Returned: ${{ steps.test-python-project.outputs.type }}"
+            echo "Expected: directory"
+            ERROR="true"
+          fi
+          if [ "${{ steps.pyproject-toml.outputs.type }}" \
+            != "file" ]; then
+            echo "Unexpected return value for: pyproject.toml ❌"
+            echo "Returned: ${{ steps.pyproject-toml.outputs.type }}"
+            echo "Expected: file"
+            ERROR="true"
+          fi
+          if [ "${{ steps.license-symlink.outputs.type }}" \
+            != "file" ]; then
+            echo "Unexpected return value for: LICENSE ❌"
+            echo "Returned: ${{ steps.license-symlink.outputs.type }}"
+            echo "Expected: file"
+            ERROR="true"
+          fi
+          if [ "${{ steps.license-symlink.outputs.symlink }}" \
+            != "true" ]; then
+            echo "Unexpected return value for: LICENSE ❌"
+            echo "Returned: ${{ steps.license-symlink.outputs.symlink }}"
+            echo "Expected: true"
+            ERROR="true"
+          fi
+          if [ "$ERROR" != "true" ]; then
+            echo "All output tests passed ✅"
+          else
+            echo "At least one output test failed ❌"
+            exit 1
+          fi
