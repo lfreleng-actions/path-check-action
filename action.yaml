@@ -7,9 +7,11 @@ name: "✅ Check path exists in repository"
 description: "Check if a given path exists in the repository, reports type"
 
 inputs:
+  # Mandatory
   PATH:
     description: "File system path to check"
     required: true
+    type: string
 
 outputs:
   TYPE:
@@ -28,23 +30,8 @@ runs:
       run: |
         # Check if a given path exists in the repository
 
-        #SHELLCODESTART
-
-        # Allows for testing from a local shell
-        if [ -z "$GITHUB_OUTPUT" ]; then
-          echo "Running from a shell, NOT workflow"
-          export GITHUB_OUTPUT="/dev/null"
-          export GITHUB_ENV="/dev/null"
-          if [ $# -ne 1 ]; then
-            echo "Error: invalid arguments specified"
-            echo "Usage:  $0 [path to validate]"; exit 1
-          else
-            CHECK_PATH="$1"
-          fi
-        else
-          CHECK_PATH="${{ inputs.PATH }}"
-        fi
-
+        # Cannot use PATH within shell code, so remap input variable
+        CHECK_PATH="${{ inputs.path }}"
         if [ -z "$CHECK_PATH" ]; then
           echo "Path to check was NOT provided/valid ❌"
         fi
@@ -55,7 +42,7 @@ runs:
         else
           SYMLINK="false"
         fi
-
+        # Set output type
         if [ -f "$CHECK_PATH" ]; then
           TYPE="file"
         elif [ -d "$CHECK_PATH" ]; then
@@ -76,5 +63,3 @@ runs:
         else
           echo "Path is invalid 🚫"
         fi
-
-        #SHELLCODEEND
