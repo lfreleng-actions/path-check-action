@@ -34,6 +34,7 @@ runs:
         CHECK_PATH="${{ inputs.path }}"
         if [ -z "$CHECK_PATH" ]; then
           echo "Path to check was NOT provided/valid ❌"
+          exit 1
         fi
 
         # Check if path is a symbolic link

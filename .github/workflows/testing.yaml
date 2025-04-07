@@ -51,6 +51,21 @@ jobs:
         with:
           path: "test-python-project/LICENSE"
 
+      - name: "Check: error when path not supplied"
+        id: no-path
+        uses: ./
+        continue-on-error: true
+        # Note: action not supplied a valid path
+        # We subsequently test that this step fails
+
+      - name: "Validate previous step failure"
+        if: steps.no-path.outcome == 'success'
+        shell: bash
+        run: |
+          # Check previous step failure
+          echo "Error: previous step should have failed ❌"
+          exit 1
+
       - name: "Validate Action Output: ${{ github.repository }}"
         shell: bash
         run: |
