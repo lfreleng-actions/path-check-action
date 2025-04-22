@@ -12,6 +12,12 @@ inputs:
     description: "File system path to check"
     required: true
     type: string
+  # Optional
+  EXIT_ON_INVALID:
+    description: "Exit with error if path invalid"
+    required: false
+    type: 'boolean'
+    default: false
 
 outputs:
   TYPE:
@@ -63,4 +69,8 @@ runs:
           echo "Path is valid ✅"
         else
           echo "Path is invalid 🚫"
+          if [ "f$EXIT_ON_INVALID" = "ftrue" ]; then
+            echo "Error: path check failed ❌"
+            exit 1
+          fi
         fi
