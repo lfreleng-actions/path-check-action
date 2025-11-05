@@ -3,63 +3,65 @@
 # SPDX-FileCopyrightText: 2025 The Linux Foundation
 
 # Action test/validation workflow
-name: "Test GitHub Action 🧪"
+name: 'Test GitHub Action 🧪'
 
 # yamllint disable-line rule:truthy
 on:
   workflow_dispatch:
   push:
-    branches: ["main"]
+    branches: ['main']
   pull_request:
-    branches: ["main"]
+    branches: ['main']
 
 permissions: {}
 
 jobs:
   ### Test the GitHub Action in this Repository ###
   tests:
-    name: "Action Testing"
+    name: 'Action Testing'
     runs-on: ubuntu-24.04
     permissions:
       contents: read
     timeout-minutes: 2
     steps:
-      - name: "Checkout repository"
+      - name: 'Checkout repository'
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       # Perform setup prior to running test(s)
-      - name: "Checkout sample project repository"
+      - name: 'Checkout sample project repository'
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
-          repository: "lfreleng-actions/test-python-project"
-          path: "test-python-project"
+          repository: 'lfreleng-actions/test-python-project'
+          path: 'test-python-project'
 
-      - name: "Check for test-python-project directory"
+      - name: 'Check for test-python-project directory'
         id: test-python-project
         uses: ./
         with:
-          path: "test-python-project"
+          path: 'test-python-project'
 
-      - name: "Check for pyproject.toml file"
+      - name: 'Check for pyproject.toml file'
         id: pyproject-toml
         uses: ./
         with:
-          path: "test-python-project/pyproject.toml"
+          path: 'test-python-project/pyproject.toml'
 
-      - name: "Check for LICENSE symlink"
+      - name: 'Check for LICENSE symlink'
         id: license-symlink
         uses: ./
         with:
-          path: "test-python-project/LICENSE"
+          path: 'test-python-project/LICENSE'
 
-      - name: "Check: error when path not supplied"
+      - name: 'Check: error when path not supplied'
         id: no-path
         uses: ./
         continue-on-error: true
-        # Note: action not supplied a valid path
+        with:
+          path: ''
+        # Note: action supplied an empty path
         # We subsequently test that this step fails
 
-      - name: "Validate previous step failure"
+      - name: 'Validate previous step failure'
         if: steps.no-path.outcome == 'success'
         shell: bash
         run: |
@@ -72,34 +74,55 @@ jobs:
         run: |
           # Validate Action Output
           if [ "${{ steps.test-python-project.outputs.type }}" \
-            != "directory" ]; then
+            != 'directory' ]; then
             echo "Unexpected return value for: test-python-project ❌"
             echo "Returned: ${{ steps.test-python-project.outputs.type }}"
-            echo "Expected: directory"
-            ERROR="true"
+            echo 'Expected: directory'
+            ERROR='true'
+          fi
+          if [ "${{ steps.test-python-project.outputs.exists }}" \
+            != 'true' ]; then
+            echo "Unexpected return value for: test-python-project exists ❌"
+            echo "Returned: ${{ steps.test-python-project.outputs.exists }}"
+            echo 'Expected: true'
+            ERROR='true'
           fi
           if [ "${{ steps.pyproject-toml.outputs.type }}" \
-            != "file" ]; then
+            != 'file' ]; then
             echo "Unexpected return value for: pyproject.toml ❌"
             echo "Returned: ${{ steps.pyproject-toml.outputs.type }}"
-            echo "Expected: file"
-            ERROR="true"
+            echo 'Expected: file'
+            ERROR='true'
+          fi
+          if [ "${{ steps.pyproject-toml.outputs.exists }}" \
+            != 'true' ]; then
+            echo "Unexpected return value for: pyproject.toml exists ❌"
+            echo "Returned: ${{ steps.pyproject-toml.outputs.exists }}"
+            echo 'Expected: true'
+            ERROR='true'
           fi
           if [ "${{ steps.license-symlink.outputs.type }}" \
-            != "file" ]; then
+            != 'file' ]; then
             echo "Unexpected return value for: LICENSE ❌"
             echo "Returned: ${{ steps.license-symlink.outputs.type }}"
-            echo "Expected: file"
-            ERROR="true"
+            echo 'Expected: file'
+            ERROR='true'
           fi
           if [ "${{ steps.license-symlink.outputs.symlink }}" \
-            != "true" ]; then
+            != 'true' ]; then
             echo "Unexpected return value for: LICENSE ❌"
             echo "Returned: ${{ steps.license-symlink.outputs.symlink }}"
-            echo "Expected: true"
-            ERROR="true"
+            echo 'Expected: true'
+            ERROR='true'
           fi
-          if [ "$ERROR" != "true" ]; then
+          if [ "${{ steps.license-symlink.outputs.exists }}" \
+            != 'true' ]; then
+            echo "Unexpected return value for: LICENSE exists ❌"
+            echo "Returned: ${{ steps.license-symlink.outputs.exists }}"
+            echo 'Expected: true'
+            ERROR='true'
+          fi
+          if [ "$ERROR" != 'true' ]; then
             echo "All output tests passed ✅"
           else
             echo "At least one output test failed ❌"

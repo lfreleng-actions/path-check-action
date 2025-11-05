@@ -3,32 +3,35 @@
 # SPDX-FileCopyrightText: 2025 The Linux Foundation
 
 # path-check-action
-name: "✅ Check path exists in repository"
-description: "Check if a given path exists in the repository, reports type"
+name: '✅ Check path exists in repository'
+description: 'Check if a given path exists in the repository, reports type'
 
 inputs:
   # Mandatory
-  PATH:
-    description: "File system path to check"
+  path:
+    description: 'File system path to check'
     required: true
   # Optional
-  EXIT_ON_INVALID:
-    description: "Exit with error if path invalid"
+  exit_on_invalid:
+    description: 'Exit with error if path invalid'
     required: false
     default: 'false'
 
 outputs:
-  TYPE:
-    description: "Returns either [file|directory|invalid]"
+  type:
+    description: 'Returns either [file|directory|invalid]'
     value: ${{ steps.check-path.outputs.type }}
-  SYMLINK:
-    description: "Returns [true|false] if path is a symbolic link"
+  symlink:
+    description: 'Returns [true|false] if path is a symbolic link'
     value: ${{ steps.check-path.outputs.symlink }}
+  exists:
+    description: 'Returns [true|false] if path exists (file/directory/symlink)'
+    value: ${{ steps.check-path.outputs.exists }}
 
 runs:
-  using: "composite"
+  using: 'composite'
   steps:
-    - name: "Check if a given path exists in the repository"
+    - name: 'Check if a given path exists in the repository'
       id: check-path
       shell: bash
       run: |
@@ -37,37 +40,46 @@ runs:
         # Cannot use PATH within shell code, so remap input variable
         CHECK_PATH="${{ inputs.path }}"
         if [ -z "$CHECK_PATH" ]; then
-          echo "Path to check was NOT provided/valid ❌"
+          echo "Error: path to check was NOT provided/valid ❌"
           exit 1
         fi
 
         # Check if path is a symbolic link
         if [ -L "$CHECK_PATH" ]; then
-          SYMLINK="true"
+          SYMLINK='true'
         else
-          SYMLINK="false"
+          SYMLINK='false'
         fi
         # Set output type
         if [ -f "$CHECK_PATH" ]; then
-          TYPE="file"
+          TYPE='file'
         elif [ -d "$CHECK_PATH" ]; then
-          TYPE="directory"
+          TYPE='directory'
         else
-          TYPE="invalid"
+          TYPE='invalid'
         fi
 
-        # Report results from action
+        # Check if path exists (file, directory, or symlink)
+        if [ -e "$CHECK_PATH" ]; then
+          EXISTS='true'
+        else
+          EXISTS='false'
+        fi
+
+        # Report results from action
         echo "Path to check: $CHECK_PATH"
         echo "Type: $TYPE"
         echo "Symlink: $SYMLINK"
+        echo "Exists: $EXISTS"
         echo "type=$TYPE" >> "$GITHUB_OUTPUT"
         echo "symlink=$SYMLINK" >> "$GITHUB_OUTPUT"
+        echo "exists=$EXISTS" >> "$GITHUB_OUTPUT"
 
-        if [ "$TYPE" != "invalid" ]; then
+        if [ "$TYPE" != 'invalid' ]; then
           echo "Path is valid ✅"
         else
           echo "Path is invalid 🚫"
-          if [ "f$EXIT_ON_INVALID" = "ftrue" ]; then
+          if [ "f${{ inputs.exit_on_invalid }}" = 'ftrue' ]; then
             echo "Error: path check failed ❌"
             exit 1
           fi
