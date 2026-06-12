@@ -34,11 +34,14 @@ runs:
     - name: 'Check if a given path exists in the repository'
       id: check-path
       shell: bash
+      env:
+        INPUT_PATH: ${{ inputs.path }}
+        INPUT_EXIT_ON_INVALID: ${{ inputs.exit_on_invalid }}
       run: |
         # Check if a given path exists in the repository
 
         # Cannot use PATH within shell code, so remap input variable
-        CHECK_PATH="${{ inputs.path }}"
+        CHECK_PATH="$INPUT_PATH"
         if [ -z "$CHECK_PATH" ]; then
           echo "Error: path to check was NOT provided/valid ❌"
           exit 1
@@ -79,7 +82,7 @@ runs:
           echo "Path is valid ✅"
         else
           echo "Path is invalid 🚫"
-          if [ "f${{ inputs.exit_on_invalid }}" = 'ftrue' ]; then
+          if [ "f$INPUT_EXIT_ON_INVALID" = 'ftrue' ]; then
             echo "Error: path check failed ❌"
             exit 1
           fi
