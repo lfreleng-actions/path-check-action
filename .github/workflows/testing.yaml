@@ -70,8 +70,8 @@ jobs:
         continue-on-error: true
         with:
           path: ''
-        # Note: action supplied an empty path
-        # We subsequently test that this step fails
+          # Note: action supplied an empty path
+          # We subsequently test that this step fails
 
       - name: 'Validate previous step failure'
         if: steps.no-path.outcome == 'success'
@@ -85,52 +85,52 @@ jobs:
         shell: bash
         run: |
           # Validate Action Output
-          if [ "${{ steps.test-python-project.outputs.type }}" \
+          if [ "${STEPS_TEST_PYTHON_PROJECT_OUTPUTS_TYPE}" \
             != 'directory' ]; then
             echo "Unexpected return value for: test-python-project ❌"
-            echo "Returned: ${{ steps.test-python-project.outputs.type }}"
+            echo "Returned: ${STEPS_TEST_PYTHON_PROJECT_OUTPUTS_TYPE}"
             echo 'Expected: directory'
             ERROR='true'
           fi
-          if [ "${{ steps.test-python-project.outputs.exists }}" \
+          if [ "${STEPS_TEST_PYTHON_PROJECT_OUTPUTS_EXISTS}" \
             != 'true' ]; then
             echo "Unexpected return value for: test-python-project exists ❌"
-            echo "Returned: ${{ steps.test-python-project.outputs.exists }}"
+            echo "Returned: ${STEPS_TEST_PYTHON_PROJECT_OUTPUTS_EXISTS}"
             echo 'Expected: true'
             ERROR='true'
           fi
-          if [ "${{ steps.pyproject-toml.outputs.type }}" \
+          if [ "${STEPS_PYPROJECT_TOML_OUTPUTS_TYPE}" \
             != 'file' ]; then
             echo "Unexpected return value for: pyproject.toml ❌"
-            echo "Returned: ${{ steps.pyproject-toml.outputs.type }}"
+            echo "Returned: ${STEPS_PYPROJECT_TOML_OUTPUTS_TYPE}"
             echo 'Expected: file'
             ERROR='true'
           fi
-          if [ "${{ steps.pyproject-toml.outputs.exists }}" \
+          if [ "${STEPS_PYPROJECT_TOML_OUTPUTS_EXISTS}" \
             != 'true' ]; then
             echo "Unexpected return value for: pyproject.toml exists ❌"
-            echo "Returned: ${{ steps.pyproject-toml.outputs.exists }}"
+            echo "Returned: ${STEPS_PYPROJECT_TOML_OUTPUTS_EXISTS}"
             echo 'Expected: true'
             ERROR='true'
           fi
-          if [ "${{ steps.license-symlink.outputs.type }}" \
+          if [ "${STEPS_LICENSE_SYMLINK_OUTPUTS_TYPE}" \
             != 'file' ]; then
             echo "Unexpected return value for: LICENSE ❌"
-            echo "Returned: ${{ steps.license-symlink.outputs.type }}"
+            echo "Returned: ${STEPS_LICENSE_SYMLINK_OUTPUTS_TYPE}"
             echo 'Expected: file'
             ERROR='true'
           fi
-          if [ "${{ steps.license-symlink.outputs.symlink }}" \
+          if [ "${STEPS_LICENSE_SYMLINK_OUTPUTS_SYMLINK}" \
             != 'true' ]; then
             echo "Unexpected return value for: LICENSE ❌"
-            echo "Returned: ${{ steps.license-symlink.outputs.symlink }}"
+            echo "Returned: ${STEPS_LICENSE_SYMLINK_OUTPUTS_SYMLINK}"
             echo 'Expected: true'
             ERROR='true'
           fi
-          if [ "${{ steps.license-symlink.outputs.exists }}" \
+          if [ "${STEPS_LICENSE_SYMLINK_OUTPUTS_EXISTS}" \
             != 'true' ]; then
             echo "Unexpected return value for: LICENSE exists ❌"
-            echo "Returned: ${{ steps.license-symlink.outputs.exists }}"
+            echo "Returned: ${STEPS_LICENSE_SYMLINK_OUTPUTS_EXISTS}"
             echo 'Expected: true'
             ERROR='true'
           fi
@@ -140,3 +140,18 @@ jobs:
             echo "At least one output test failed ❌"
             exit 1
           fi
+        env:
+          # yamllint disable-line rule:line-length
+          STEPS_TEST_PYTHON_PROJECT_OUTPUTS_TYPE: ${{ steps.test-python-project.outputs.type }}
+          # yamllint disable-line rule:line-length
+          STEPS_TEST_PYTHON_PROJECT_OUTPUTS_EXISTS: ${{ steps.test-python-project.outputs.exists }}
+          # yamllint disable-line rule:line-length
+          STEPS_PYPROJECT_TOML_OUTPUTS_TYPE: ${{ steps.pyproject-toml.outputs.type }}
+          # yamllint disable-line rule:line-length
+          STEPS_PYPROJECT_TOML_OUTPUTS_EXISTS: ${{ steps.pyproject-toml.outputs.exists }}
+          # yamllint disable-line rule:line-length
+          STEPS_LICENSE_SYMLINK_OUTPUTS_TYPE: ${{ steps.license-symlink.outputs.type }}
+          # yamllint disable-line rule:line-length
+          STEPS_LICENSE_SYMLINK_OUTPUTS_SYMLINK: ${{ steps.license-symlink.outputs.symlink }}
+          # yamllint disable-line rule:line-length
+          STEPS_LICENSE_SYMLINK_OUTPUTS_EXISTS: ${{ steps.license-symlink.outputs.exists }}
