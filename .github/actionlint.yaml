@@ -4,7 +4,5 @@
 
 paths:
   .github/workflows/**/*.{yml,yaml}:
-    # List of regular expressions to filter errors by the error messages.
     ignore:
-      # Ignore this specific error because we test for this failure
       - 'missing input "PATH" which is required by action .+'
