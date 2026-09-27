@@ -6,3 +6,8 @@ paths:
   .github/workflows/**/*.{yml,yaml}:
     ignore:
       - 'missing input "PATH" which is required by action .+'
+  .github/workflows/testing.yaml:
+    ignore:
+      # The fork rejects a bare '$/' (an action at the repository
+      # root), which GitHub accepts and runs.
+      - 'specifying action "\$/" in invalid format because path is missing'
