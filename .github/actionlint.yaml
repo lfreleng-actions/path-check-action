@@ -4,7 +4,12 @@
 
 paths:
   .github/workflows/**/*.{yml,yaml}:
-    # List of regular expressions to filter errors by the error messages.
     ignore:
-      # Ignore this specific error because we test for this failure
       - 'missing input "PATH" which is required by action .+'
+  .github/workflows/testing.yaml:
+    ignore:
+      # actionlint v1.17.0 rejects a bare '$/' (an action at the repository
+      # root), which GitHub accepts and runs. The ignore also skips input and
+      # output checks for those steps; drop it once a release with
+      # kjanat/actionlint#200 is pinned (actions-template#253).
+      - 'specifying action "\$/" in invalid format because path is missing'

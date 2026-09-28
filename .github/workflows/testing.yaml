@@ -33,11 +33,6 @@ jobs:
       contents: read
     timeout-minutes: 2
     steps:
-      - name: 'Checkout repository'
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
       # Perform setup prior to running test(s)
       - name: 'Checkout sample project repository'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -48,25 +43,34 @@ jobs:
 
       - name: 'Check for test-python-project directory'
         id: test-python-project
-        uses: ./
+        uses: $/
         with:
           path: 'test-python-project'
 
       - name: 'Check for pyproject.toml file'
         id: pyproject-toml
-        uses: ./
+        uses: $/
         with:
           path: 'test-python-project/pyproject.toml'
 
+      # Create the symlink under test rather than depend on the fixture
+      # shipping one: test-python-project replaced its LICENSE symlink
+      # with a regular file, which broke this check (#154)
+      - name: 'Create LICENSE symlink'
+        shell: bash
+        run: |
+          # Create LICENSE symlink
+          ln -s LICENSE test-python-project/LICENSE-link
+
       - name: 'Check for LICENSE symlink'
         id: license-symlink
-        uses: ./
+        uses: $/
         with:
-          path: 'test-python-project/LICENSE'
+          path: 'test-python-project/LICENSE-link'
 
       - name: 'Check: error when path not supplied'
         id: no-path
-        uses: ./
+        uses: $/
         continue-on-error: true
         with:
           path: ''
