@@ -53,11 +53,20 @@ jobs:
         with:
           path: 'test-python-project/pyproject.toml'
 
+      # Create the symlink under test rather than depend on the fixture
+      # shipping one: test-python-project replaced its LICENSE symlink
+      # with a regular file, which broke this check (#154)
+      - name: 'Create LICENSE symlink'
+        shell: bash
+        run: |
+          # Create LICENSE symlink
+          ln -s LICENSE test-python-project/LICENSE-link
+
       - name: 'Check for LICENSE symlink'
         id: license-symlink
         uses: $/
         with:
-          path: 'test-python-project/LICENSE'
+          path: 'test-python-project/LICENSE-link'
 
       - name: 'Check: error when path not supplied'
         id: no-path
